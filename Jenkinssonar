@@ -11,7 +11,7 @@ pipeline {
                 label 'sonar'
             }
             steps {
-             withSonarQubeEnv('sonar') { 
+             withSonarQubeEnv('spring') { 
                     sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Spring"
                 } 
              }
