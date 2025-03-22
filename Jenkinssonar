@@ -6,6 +6,16 @@ pipeline {
         AWS_DEFAULT_REGION    = 'ap-south-1'
     }
     stages {
+        stage('Scanning Stage') {
+            agent {
+                label 'sonar'
+            }
+            steps {
+             withSonarQubeEnv('sonar') { 
+                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Spring"
+                } 
+             }
+          }
         stage('Build Stage') {
             agent {
                 label 'jfrog'
