@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Deploy and Push to ECR') {
             agent {
-                label 'deploy'    // Runs on the SonarQube agent
+                label 'deploy'    // Runs on the Deploy agent
             }
             steps {
                 script {
