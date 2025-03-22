@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Build Stage') {
             agent {
-                label 'master'
+                label 'jfrog'
             }
             steps {
                 sh 'mvn clean install'
