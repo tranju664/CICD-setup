@@ -21,7 +21,12 @@ stage('Deploy and Push to Non-Prod EKS') {
                 docker push 123456789012.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
 
                 # Update kubeconfig for Non-Prod EKS
-                aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
+                if [[ '${BRANCH_NAME}' == 'dev' || '${BRANCH_NAME}' == 'qa' || '${BRANCH_NAME}' == 'uat' ]]; then
+                     aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
+                else
+                    aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
+                fi
+                #aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
                 kubectl apply -f manifest.yaml
                 sleep 10
                 kubectl get pods -n ss-nonprod
