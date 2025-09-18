@@ -53,6 +53,7 @@ pipeline {
                         # Update kubeconfig to interact with EKS
                         aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
                         kubectl apply -f manifest.yaml
+                        # Force rollout restart
                         kubectl rollout restart deployment ss-springboot -n ss-dev
                         sleep 10
                         kubectl get pods -n ss-dev
