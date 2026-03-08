@@ -23,7 +23,7 @@ spec:
       labels:
         app: ss
     spec:
-      serviceAccountName: eks-sa
+      #serviceAccountName: eks-sa
       automountServiceAccountToken: false
       restartPolicy: Always
       containers:
