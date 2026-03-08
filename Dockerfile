@@ -6,7 +6,7 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copy the JAR file from the host machine to the Docker image
-COPY jenkins-test-1.0.jar /app/jenkins-test-1.0.jar
+COPY target/*.jar /app/jenkins-test-1.0.jar
 
 # Set the working directory
 #WORKDIR /app
