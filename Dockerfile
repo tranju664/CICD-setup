@@ -1,6 +1,7 @@
 # Use the latest OpenJDK image as the base image
 #FROM openjdk:latest
 FROM eclipse-temurin:17-jre
+
 # Create a directory in the Docker image to store the JAR file
 WORKDIR /app
 
