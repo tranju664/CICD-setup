@@ -11,10 +11,19 @@ pipeline {
                 label 'sonar' // Runs on the SonarQube agent
             }
             steps {
-             withSonarQubeEnv('spring') { 
-                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Spring"
-                } 
-             }
+                script {
+                    def mvn = tool 'maven' 
+                    
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${mvn}/bin/mvn clean verify \
+                        org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                        -Dsonar.projectKey=sonar \
+                        -Dsonar.projectName=sonar
+                        """
+                    }
+                }
+            }
           }
         stage('Build Stage') {
             agent {
