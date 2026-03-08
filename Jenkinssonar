@@ -27,7 +27,7 @@ pipeline {
           }
         stage('Build Stage') {
             agent {
-                label 'deploy' // Runs on the Jenkisn Master Node
+                label 'deploy' // Runs on the Deploy node
             }
             steps {
                 sh 'mvn clean install'
