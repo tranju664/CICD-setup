@@ -61,7 +61,8 @@ pipeline {
 
                         # Update kubeconfig to interact with EKS
                         aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
-                        kubectl apply -f manifest.yaml
+                        # kubectl apply -f manifest.yaml
+                        kubectl apply -f test.yaml
                         # Force rollout restart
                         kubectl rollout restart deployment ss-springboot -n ss-dev
                         sleep 10
