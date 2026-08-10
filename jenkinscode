@@ -1,0 +1,91 @@
+pipeline {
+    agent none
+
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_DEFAULT_REGION    = 'ap-south-1'
+    }
+
+    stages {
+        stage('Scanning Stage') {
+            agent {
+                label 'sonar'
+            }
+            steps {
+                script {
+                    def mvn = tool 'maven'
+
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${mvn}/bin/mvn clean verify \
+                        org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                        -Dsonar.projectKey=Sonar \
+                        -Dsonar.projectName=Sonar
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build Stage') {
+            agent {
+                label 'deploy'
+            }
+            steps {
+                sh 'mvn clean install'
+            }
+            post {
+                success {
+                    script {
+                        def server = Artifactory.newServer(url: 'http://3.109.1.199:8081/artifactory/', credentialsId: 'jfrog')
+                        def rtMaven = Artifactory.newMavenBuild()
+                        rtMaven.deployer server: server, releaseRepo: 'test', snapshotRepo: 'test'
+                        rtMaven.tool = 'maven'
+                        rtMaven.run(pom: 'pom.xml', goals: 'clean install')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy and Push to ECR') {
+            agent {
+                label 'deploy'
+            }
+            steps {
+                script {
+                    sh '''
+                        BRANCH=${BRANCH_NAME:-${GIT_BRANCH#origin/}}
+
+                        echo "Current branch is: $BRANCH"
+
+                        if [ "$BRANCH" = "dev" ]; then
+                            sed -i 's/ENVIRONMENT/dev/g' test.yaml
+                            NAMESPACE="ss-dev"
+                        elif [ "$BRANCH" = "qa" ]; then
+                            sed -i 's/ENVIRONMENT/qa/g' test.yaml
+                            NAMESPACE="ss-qa"
+                        else
+                            echo "Invalid branch"
+                            exit 1
+                        fi
+
+                        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+                        docker build -t sstest .
+                        docker tag sstest:latest 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
+                        docker push 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
+
+                        aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
+                        kubectl apply -f test.yaml
+                        kubectl rollout restart deployment ss-springboot -n $NAMESPACE
+                        sleep 10
+                        kubectl get pods -n $NAMESPACE
+                        kubectl get svc -n $NAMESPACE
+                    '''
+                }
+            }
+        }
+    }
+}
+
+
