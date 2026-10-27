@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Scanning Stage') {
             agent {
-                label 'deploy' // Runs on the SonarQube agent
+                label 'deploy' // Runs on the deploy agent
             }
             steps {
                 script {
