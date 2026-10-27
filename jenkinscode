@@ -82,10 +82,10 @@ pipeline {
                         docker tag sstest:latest 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
                         docker push 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
 
-                        if [ "$BRANCH" == "dev" || "$BRANCH" == "qa" || "$BRANCH" == "uat" ]; then
+                        if [ "$BRANCH" = "dev" || "$BRANCH" = "qa" || "$BRANCH" = "uat" ]; then
                             aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
                         elif
-                           [ "$BRANCH" == "pte" ]; then
+                           [ "$BRANCH" = "pte" ]; then
                             aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl-1
                         else
                            echo "wrong cluster"
