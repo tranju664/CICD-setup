@@ -8,7 +8,7 @@ metadata:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ss-dev-pv-efs
+  name: ss-ENVIRONMENT-pv-efs
 spec:
   capacity:
     storage: 5Gi
@@ -26,13 +26,13 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ss-dev-pvc-efs
+  name: ss-ENVIRONMENT-pvc-efs
   namespace: ss-dev
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: edx-efs-sc
-  volumeName: ss-dev-pv-efs
+  volumeName: ss-ENVIRONMENT-pv-efs
   resources:
     requests:
       storage: 5Gi
@@ -43,7 +43,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ss-springboot
-  namespace: ss-dev
+  namespace: ss-ENVIRONMENT
   annotations:
     kubernetes.io/change-cause: "Release 1.1 Version"
   labels:
@@ -85,7 +85,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ss
-  namespace: ss-dev
+  namespace: ss-ENVIRONMENT
 spec:
   type: NodePort
   selector:
@@ -102,7 +102,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ss-alb-ingress
-  namespace: ss-dev
+  namespace: ss-ENVIRONMENT
   labels:
     app: ss
   annotations:
