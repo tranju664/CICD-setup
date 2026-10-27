@@ -82,7 +82,11 @@ pipeline {
                         docker tag sstest:latest 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
                         docker push 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
 
-                        aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
+                        if [[ '${BRANCH_NAME}' == 'dev' || '${BRANCH_NAME}' == 'qa' || '${BRANCH_NAME}' == 'uat' ]]; then
+                            aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
+                        else
+                            aws eks update-kubeconfig --region ap-south-1 --name nonprod-cluster-eksctl
+                        fi
                         kubectl apply -f test.yaml
                         kubectl rollout restart deployment ss-springboot -n $NAMESPACE
                         sleep 10
