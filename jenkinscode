@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+                        BRANCH="${GIT_BRANCH#origin/}"
 
                         echo "Current branch is: $BRANCH"
 
