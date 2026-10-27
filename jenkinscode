@@ -1,10 +1,14 @@
 pipeline {
     agent none
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'dev', description: 'Branch to build and deploy')
+    }
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         AWS_DEFAULT_REGION    = 'ap-south-1'
     }
+    
     stages {
         stage('Scanning Stage') {
             agent {
@@ -64,6 +68,12 @@ pipeline {
                         elif [ "$BRANCH" = "qa" ]; then
                             sed -i 's/ENVIRONMENT/qa/g' test.yaml
                             NAMESPACE="ss-qa"
+                        elif [ "$BRANCH" = "uat" ]; then
+                            sed -i 's/ENVIRONMENT/uat/g' test.yaml
+                            NAMESPACE="ss-uat"
+                         elif [ "$BRANCH" = "pte" ]; then
+                            sed -i 's/ENVIRONMENT/pte/g' test.yaml
+                            NAMESPACE="ss-pte"
                         else
                             echo "Invalid branch"
                             exit 1
