@@ -82,13 +82,15 @@ pipeline {
                         docker tag sstest:latest 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
                         docker push 804480554088.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/sstest:latest
 
-                        if [ "$BRANCH" = "dev" || "$BRANCH" = "qa" || "$BRANCH" = "uat" ]; then
+                        if [ "$BRANCH" = "dev" ] || [ "$BRANCH" = "qa" ] || [ "$BRANCH" = "uat" ]; then
+                            echo "Deploying to Non-prod cluster: $BRANCH"
                             aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl
-                        elif
-                           [ "$BRANCH" = "pte" ]; then
+                        elif [ "$BRANCH" = "pte" ]; then
+                            echo "Deploying to Abathor cluster: $BRANCH"
                             aws eks update-kubeconfig --region ap-south-1 --name cluster-eksctl-1
                         else
-                           echo "wrong cluster"
+                             echo "Wrong cluster for branch: $BRANCH"
+                             exit 1
                         fi
                         kubectl apply -f test.yaml
                         kubectl rollout restart deployment ss-springboot -n $NAMESPACE
