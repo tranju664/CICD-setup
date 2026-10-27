@@ -1,21 +1,19 @@
 pipeline {
     agent none
-
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         AWS_DEFAULT_REGION    = 'ap-south-1'
     }
-
     stages {
         stage('Scanning Stage') {
             agent {
-                label 'sonar'
+                label 'deploy' // Runs on the SonarQube agent
             }
             steps {
                 script {
-                    def mvn = tool 'maven'
-
+                    def mvn = tool 'maven' 
+                    
                     withSonarQubeEnv('SonarQube') {
                         sh """
                         ${mvn}/bin/mvn clean verify \
@@ -26,11 +24,10 @@ pipeline {
                     }
                 }
             }
-        }
-
+          }
         stage('Build Stage') {
             agent {
-                label 'deploy'
+                label 'deploy' // Runs on the Deploy node
             }
             steps {
                 sh 'mvn clean install'
@@ -38,9 +35,11 @@ pipeline {
             post {
                 success {
                     script {
-                        def server = Artifactory.newServer(url: 'http://3.109.1.199:8081/artifactory/', credentialsId: 'jfrog')
+                        //def server = Artifactory.newServer(url: 'http://3.109.1.199:8081/artifactory/', credentialsId: 'jfrog')
+                        def server = Artifactory.newServer(url: 'http://13.201.194.232:8082/artifactory/', credentialsId: 'jfrog')     
                         def rtMaven = Artifactory.newMavenBuild()
-                        rtMaven.deployer server: server, releaseRepo: 'test', snapshotRepo: 'test'
+                        //rtMaven.deployer server: server, releaseRepo: 'libs-release/', snapshotRepo: 'libs-snapshot/'
+                        rtMaven.deployer server: server, releaseRepo: 'sagar-libs-release-local', snapshotRepo: 'sagar-libs-snapshot-local'
                         rtMaven.tool = 'maven'
                         rtMaven.run(pom: 'pom.xml', goals: 'clean install')
                     }
